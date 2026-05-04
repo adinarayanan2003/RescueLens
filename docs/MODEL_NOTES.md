@@ -24,27 +24,26 @@ The final notebook combines both model outputs:
 
 1. U-Net creates a binary flood/water mask.
 2. YOLOv8 returns person bounding boxes.
-3. The script checks selected bounding-box pixels against the mask.
-4. Bounding boxes with enough high-value mask pixels are highlighted.
+3. The script measures mask coverage inside each bounding box.
+4. Bounding boxes over the coverage threshold are highlighted.
 
 ## Important Assumptions
 
 - YOLO boxes are aligned to the same image dimensions as the generated mask.
 - U-Net mask output is resized to match the YOLO input/output image size.
 - White or high-value mask pixels represent flood/water regions.
-- A person box touching water at selected points is treated as a higher-risk detection.
+- A person box with enough flood-mask coverage is treated as a higher-risk detection.
 
 ## Known Technical Risks
 
-- Checking only bounding-box corners can miss partial overlap inside the box.
 - Resizing masks can introduce alignment errors if aspect ratios differ.
 - Flood water can visually resemble road, mud, shadow, or reflections.
 - People may be partially submerged, very small, occluded, or far from the camera.
 - Training data quality strongly controls model behavior.
 
-## Recommended Post-processing Upgrade
+## Post-processing
 
-Replace corner-pixel checking with area-overlap scoring:
+The combined notebook uses area-overlap scoring:
 
 ```python
 box_mask = flood_mask[y_min:y_max, x_min:x_max]
@@ -54,4 +53,4 @@ if coverage >= min_coverage:
     mark_as_high_risk()
 ```
 
-This measures how much of each detected person box intersects the flood mask and is more stable than checking a few points.
+This keeps the decision rule readable: each detected person receives a flood-overlap score, and only boxes over the chosen threshold are highlighted.

@@ -65,7 +65,7 @@ Purpose:
 
 - Runs U-Net segmentation on an input flood image.
 - Runs YOLOv8 person detection on the same image.
-- Compares bounding boxes against the predicted flood mask.
+- Scores each person box by flood-mask coverage.
 - Saves an image with highlighted candidate detections.
 
 Main values to update:
@@ -76,7 +76,7 @@ MODEL_PATH = "path/to/unet.pth"
 model = YOLO("path/to/yolo_best.pt")
 ```
 
-## Reproducibility Notes
+## Run Notes
 
 - Keep model checkpoints outside Git unless they are small and intentionally versioned.
 - Keep datasets outside Git unless licensing allows redistribution.

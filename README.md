@@ -1,22 +1,20 @@
 # Computer Vision Guided Life Detection From Flood
 
-Computer vision pipeline for identifying people in flood imagery and highlighting detections that overlap with flood/water regions. The project combines:
+Prototype pipeline for finding people in flood imagery and marking detections that sit inside predicted flood/water regions.
 
-- **YOLOv8 object detection** to locate people in disaster/flood scene images.
-- **U-Net semantic segmentation** to estimate flood/water regions.
-- **Post-processing logic** to compare person bounding boxes against the predicted flood mask and flag high-risk detections.
+The workflow uses:
 
-The current implementation is notebook-first and designed for Google Colab experimentation.
+- YOLOv8 for person detection.
+- A PyTorch U-Net for flood/water segmentation.
+- Mask-overlap scoring to highlight detected people in flooded areas.
 
 ## Problem Statement
 
-Flood response teams often need to scan large image sets quickly to find people who may be stranded or exposed to flood water. This repository explores a two-stage computer vision approach:
+Flood imagery can contain many frames where only a few show people in risky positions. This project keeps the detection problem simple and inspectable:
 
 1. Detect humans in flood-scene images.
-2. Segment flood/water regions.
-3. Mark detected humans whose bounding boxes intersect likely flood regions.
-
-This can support triage workflows where responders review candidate images instead of manually scanning every frame.
+2. Segment likely flood/water pixels.
+3. Rank or mark detections by how much of the person box overlaps the flood mask.
 
 ## Repository Structure
 
@@ -46,7 +44,7 @@ Flood image
    |-- YOLOv8 detection ----> Person bounding boxes
                                 |
                                 v
-                   Mask + box overlap check
+                   Mask overlap scoring
                                 |
                                 v
                    Highlight people in flood regions
@@ -59,13 +57,13 @@ Flood image
 | `notebooks/coco_json_to_masks.ipynb` | Converts COCO polygon annotations into binary mask images for segmentation training. |
 | `notebooks/unet_segmentation.ipynb` | Defines a PyTorch U-Net model, dataset loader, training loop, validation loop, and single-image inference. |
 | `notebooks/yolov8_detection.ipynb` | Uses Ultralytics YOLOv8 to train, validate, and run object detection on flood images. |
-| `notebooks/final_life_detection_pipeline.ipynb` | Runs U-Net inference and YOLO inference on the same image, then checks whether detected person boxes touch likely flood regions. |
+| `notebooks/final_life_detection_pipeline.ipynb` | Runs U-Net and YOLO on the same image, then scores each person box by flood-mask coverage. |
 
 ## Setup
 
-### Option 1: Google Colab
+### Google Colab
 
-The notebooks currently use Colab paths such as `/content/drive/MyDrive/project/...`.
+The notebooks were developed in Colab. Set the path constants in each notebook to match your Drive or local folder layout.
 
 1. Open a notebook from the `notebooks/` directory in Google Colab.
 2. Mount Google Drive when prompted.
@@ -73,7 +71,7 @@ The notebooks currently use Colab paths such as `/content/drive/MyDrive/project/
 4. Update the path constants inside each notebook to match your Drive folder.
 5. Run the notebook cells in order.
 
-### Option 2: Local Python Environment
+### Local Python Environment
 
 Create a virtual environment and install the project dependencies:
 
@@ -87,7 +85,7 @@ For GPU acceleration, install the PyTorch build that matches your CUDA version f
 
 ## Expected Data Layout
 
-The notebooks assume image, mask, and model paths are configured manually. A clean local layout is:
+Keep datasets, model weights, and generated runs outside Git. The ignored local layout below works well with the notebooks:
 
 ```text
 data/
@@ -177,7 +175,7 @@ The final notebook:
 
 1. Generates a flood/water mask for the input image.
 2. Detects people using YOLOv8.
-3. Checks bounding box corner pixels against the predicted mask.
+3. Calculates flood-mask coverage inside each detected person box.
 4. Saves an output image with highlighted detections.
 
 ## Key Dependencies
@@ -192,22 +190,11 @@ The final notebook:
 - NumPy
 - pycocotools
 
-## Current Limitations
+## Artifacts
 
-- Paths are still notebook-local and should be updated before each run.
-- The U-Net dataset class is named `CarvanaDataset` even though it is used for flood segmentation.
-- The final overlap logic checks bounding-box corner pixels only; a more robust approach would calculate the mask coverage ratio inside each bounding box.
-- Model checkpoints and datasets are not included in the repository.
-- Training metrics, confusion matrices, and qualitative output samples should be added after running the notebooks on the final dataset.
+Datasets and trained weights are intentionally not committed. Put them under `data/` and `models/` locally, or point the notebook constants to the corresponding Drive paths in Colab.
 
-## Recommended Improvements
-
-- Move reusable model, dataset, inference, and post-processing code into a `src/` package.
-- Add command-line scripts for training and inference.
-- Replace hardcoded Colab paths with a config file.
-- Track experiment metrics in `runs/` or a lightweight experiment log.
-- Add example output images once dataset permissions are confirmed.
-- Improve the final risk scoring from corner checks to area-overlap scoring.
+When publishing results, add the dataset version, checkpoint name, validation metrics, and a few qualitative outputs so the run can be traced later.
 
 ## Documentation
 
@@ -219,4 +206,4 @@ The final notebook:
 
 ## Project Status
 
-This is an academic/prototype computer vision project. It demonstrates the core idea, but it should be validated carefully before any operational rescue or emergency-response use.
+Notebook-first research prototype. The code is kept small so the full pipeline can be inspected and modified quickly.

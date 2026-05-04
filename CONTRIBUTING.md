@@ -1,15 +1,13 @@
 # Contributing
 
-Contributions should make the project easier to reproduce, evaluate, or extend.
+Keep changes focused. This repo is intentionally notebook-first, so small, readable edits are better than a framework rewrite.
 
-## Good First Improvements
+## What Belongs Here
 
-- Replace hardcoded Colab paths with configurable path variables.
-- Rename `CarvanaDataset` to a flood-specific dataset class.
-- Add a proper train/validation/test metrics table to the README.
-- Add example output images if dataset permissions allow it.
-- Move reusable code from notebooks into a `src/` package.
-- Replace bounding-box corner checks with mask area-overlap scoring.
+- Notebook changes that improve the flood segmentation, person detection, or combined scoring flow.
+- Documentation that helps someone reproduce a run.
+- Metrics, sample outputs, and notes from real experiments.
+- Small utilities that remove repeated notebook work without hiding the pipeline.
 
 ## Development Setup
 
@@ -28,7 +26,7 @@ If training on GPU, install the correct PyTorch build for your CUDA version befo
 - Include before/after metrics when changing model logic.
 - Include qualitative screenshots when changing inference or visualization.
 - Do not commit large datasets, generated run folders, or model checkpoints unless intentionally required.
-- Keep paths portable; avoid committing user-specific absolute paths.
+- Keep paths easy to change; avoid committing machine-specific absolute paths when a relative path will work.
 
 ## Experiment Reporting
 
