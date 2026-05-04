@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data and model artifacts
+data/
+datasets/
+models/
+weights/
+runs/
+outputs/
+*.pt
+*.pth
+*.onnx
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
